@@ -1,0 +1,98 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Simulation",
+            "type": "shell",
+            "command": "/usr/bin/make",
+            "args": [
+                "MODE=release",
+                "all"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "options": {
+                "env": {
+                    "PATH": "${workspaceFolder}/src/veins:${workspaceFolder}/src:${env:PATH}",
+                    "SUMO_HOME": "/usr/share/sumo",
+                    "PYTHONPATH": "/usr/share/sumo/tools",
+                    "OMNETPP_ROOT": "/home/rogerio/omnetpp-5.7/",
+                    "OMNETPP_IMAGE_PATH": "/home/rogerio/omnetpp-5.7/images",
+                    "OMNETPP_CONFIGFILE": "/home/rogerio/omnetpp-5.7/Makefile.inc"
+                },
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Simulation",
+            "type": "shell",
+            "command": "/home/rogerio/omnetpp-5.7/bin/opp_run",
+            "args": [
+                "-r",
+                "0",
+                "-m",
+                "-u",
+                "Cmdenv",
+                "-c",
+                "Default",
+                "-n",
+                ".",
+                "--image-path=../../images",
+                "-l",
+                "../../src/veins",
+                "omnetpp.ini"
+            ],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "options": {
+                "env": {
+                    "PATH": "${workspaceFolder}/src/veins:${workspaceFolder}/src:${env:PATH}",
+                    "SUMO_HOME": "/usr/share/sumo",
+                    "PYTHONPATH": "/usr/share/sumo/tools",
+                    "OMNETPP_ROOT": "/home/rogerio/omnetpp-5.7/",
+                    "OMNETPP_IMAGE_PATH": "/home/rogerio/omnetpp-5.7/images"
+                },
+                "cwd": "${workspaceFolder}/examples/veins"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Collect Results",
+            "type": "shell",
+            "command": "${workspaceFolder}/scripts/results.sh",
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/examples/veins/results"
+            }
+        },
+        {
+            "label": "Serve TraCI",
+            "type": "shell",
+            "command": "${workspaceFolder}/scripts/traci_server.sh",
+            "group": "none",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        }
+    ]
+}
