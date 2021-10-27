@@ -63,7 +63,10 @@ OBJS = \
     $O/veins/modules/analogueModel/SimplePathlossModel.o \
     $O/veins/modules/analogueModel/TwoRayInterferenceModel.o \
     $O/veins/modules/analogueModel/VehicleObstacleShadowing.o \
+    $O/veins/modules/application/ecode/ECODEBaseApplLayer.o \
     $O/veins/modules/application/ieee80211p/DemoBaseApplLayer.o \
+    $O/veins/modules/application/traci/MyVeinsApp.o \
+    $O/veins/modules/application/traci/MyRSUVeinsApp.o \
     $O/veins/modules/application/traci/TraCIDemo11p.o \
     $O/veins/modules/application/traci/TraCIDemoRSU11p.o \
     $O/veins/modules/mac/ieee80211p/Mac1609_4.o \
@@ -106,6 +109,7 @@ OBJS = \
     $O/veins/modules/application/traci/TraCIDemo11pMessage_m.o \
     $O/veins/modules/messages/AckTimeOutMessage_m.o \
     $O/veins/modules/messages/AirFrame11p_m.o \
+    $O/veins/modules/messages/ADVMessage_m.o \
     $O/veins/modules/messages/BaseFrame1609_4_m.o \
     $O/veins/modules/messages/DemoSafetyMessage_m.o \
     $O/veins/modules/messages/DemoServiceAdvertisement_m.o \
@@ -121,6 +125,7 @@ MSGFILES = \
     veins/base/messages/MacPkt.msg \
     veins/modules/application/traci/TraCIDemo11pMessage.msg \
     veins/modules/messages/AckTimeOutMessage.msg \
+    veins/modules/messages/ADVMessage.msg \
     veins/modules/messages/AirFrame11p.msg \
     veins/modules/messages/BaseFrame1609_4.msg \
     veins/modules/messages/DemoSafetyMessage.msg \

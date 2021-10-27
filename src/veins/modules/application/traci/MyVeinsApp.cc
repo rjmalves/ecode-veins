@@ -1,26 +1,6 @@
-//
-// Copyright (C) 2016 David Eckhoff <david.eckhoff@fau.de>
-//
-// Documentation for these modules is at http://veins.car2x.org/
-//
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-//
-
 #include "veins/modules/application/traci/MyVeinsApp.h"
+
+#include "veins/modules/application/traci/TraCIDemo11pMessage_m.h"
 
 using namespace veins;
 
@@ -28,44 +8,77 @@ Define_Module(veins::MyVeinsApp);
 
 void MyVeinsApp::initialize(int stage)
 {
-    DemoBaseApplLayer::initialize(stage);
+    ECODEBaseApplLayer::initialize(stage);
     if (stage == 0) {
-        // Initializing members and pointers of your application goes here
-        std::cout << "Initializing " << par("appName").stringValue() << std::endl;
-        last_sent_adv = simTime();
-    }
-    else if (stage == 1) {
-        // Initializing members that require initialized other modules goes here
+        sentMessage = false;
+        lastDroveAt = simTime();
+        currentSubscribedServiceId = -1;
     }
 }
 
-void MyVeinsApp::finish()
+void MyVeinsApp::onWSM(BaseFrame1609_4* frame)
 {
-    DemoBaseApplLayer::finish();
-    // statistics recording goes here
-}
-
-void MyVeinsApp::onWSM(BaseFrame1609_4* wsm)
-{
-    // Your application has received a data message from another car or RSU
-    // code for handling the message goes here, see TraciDemo11p.cc for examples
+    TraCIDemo11pMessage* wsm = check_and_cast<TraCIDemo11pMessage*>(frame);
+    if (mobility->getRoadId()[0] != ':') traciVehicle->changeRoute(wsm->getDemoData(), 9999);
+    if (!sentMessage) {
+        sentMessage = true;
+        // repeat the received traffic update once in 2 seconds plus some random delay
+        wsm->setSenderAddress(myId);
+        wsm->setSerial(3);
+        scheduleAt(simTime() + 2 + uniform(0.01, 0.2), wsm->dup());
+    }
 }
 
 void MyVeinsApp::handleSelfMsg(cMessage* msg)
 {
-    DemoBaseApplLayer::handleSelfMsg(msg);
-    // this method is for self messages (mostly timers)
-    // it is important to call the DemoBaseApplLayer function for BSM and WSM transmission
+    if (TraCIDemo11pMessage* wsm = dynamic_cast<TraCIDemo11pMessage*>(msg)) {
+        // send this message on the service channel until the counter is 3 or higher.
+        // this code only runs when channel switching is enabled
+        sendDown(wsm->dup());
+        wsm->setSerial(wsm->getSerial() + 1);
+        if (wsm->getSerial() >= 3) {
+            // stop service advertisements
+            stopService();
+            delete (wsm);
+        }
+        else {
+            scheduleAt(simTime() + 1, wsm);
+        }
+    }
+    else {
+        ECODEBaseApplLayer::handleSelfMsg(msg);
+    }
 }
 
 void MyVeinsApp::handlePositionUpdate(cObject* obj)
 {
-    DemoBaseApplLayer::handlePositionUpdate(obj);
-    // the vehicle has moved. Code that reacts to new positions goes here.
-    // member variables such as currentPosition and currentSpeed are updated in the parent class
-    if ( (simTime() - last_sent_adv) >= 5.0)
-    {
-        last_sent_adv = simTime();
-        std::cout << "Sending ADV at " << last_sent_adv << std::endl;
+    ECODEBaseApplLayer::handlePositionUpdate(obj);
+
+    std::cout << mobility->getId() << " se moveu!" << std::endl;
+    // stopped for for at least 10s?
+    if (mobility->getSpeed() < 1) {
+        if (simTime() - lastDroveAt >= 10 && sentMessage == false) {
+            sentMessage = true;
+
+            TraCIDemo11pMessage* wsm = new TraCIDemo11pMessage();
+            populateWSM(wsm);
+            wsm->setDemoData(mobility->getRoadId().c_str());
+            std::cout << "Criei: " << mobility->getId() << ": " << wsm->getDemoData() << std::endl;
+
+            // host is standing still due to crash
+            if (dataOnSch) {
+                startService(Channel::sch2, 42, "Traffic Information Service");
+                // started service and server advertising, schedule message to self to send later
+                scheduleAt(computeAsynchronousSendingTime(1, ChannelType::service), wsm);
+            }
+            else {
+                // send right away on CCH, because channel switching is disabled
+                sendDown(wsm);
+            }
+        }
+    }
+    else {
+        lastDroveAt = simTime();
+        sentMessage = false;
     }
 }

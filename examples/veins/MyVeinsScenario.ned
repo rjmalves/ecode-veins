@@ -20,9 +20,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
+import org.car2x.veins.nodes.RSU;
 import org.car2x.veins.nodes.Scenario;
 
 network MyVeinsScenario extends Scenario
 {
-
+    submodules:
+        rsu[3]: RSU {};
 }
