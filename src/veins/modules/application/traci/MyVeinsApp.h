@@ -18,7 +18,8 @@ namespace veins {
  *
  */
 
-class VEINS_API MyVeinsApp : public ECODEBaseApplLayer {
+class VEINS_API MyVeinsApp : public ECODEBaseApplLayer
+{
 public:
     void initialize(int stage) override;
 

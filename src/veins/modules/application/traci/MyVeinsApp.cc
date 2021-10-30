@@ -9,7 +9,8 @@ Define_Module(veins::MyVeinsApp);
 void MyVeinsApp::initialize(int stage)
 {
     ECODEBaseApplLayer::initialize(stage);
-    if (stage == 0) {
+    if (stage == 0)
+    {
         sentMessage = false;
         lastDroveAt = simTime();
         currentSubscribedServiceId = -1;
@@ -19,8 +20,12 @@ void MyVeinsApp::initialize(int stage)
 void MyVeinsApp::onWSM(BaseFrame1609_4* frame)
 {
     TraCIDemo11pMessage* wsm = check_and_cast<TraCIDemo11pMessage*>(frame);
-    if (mobility->getRoadId()[0] != ':') traciVehicle->changeRoute(wsm->getDemoData(), 9999);
-    if (!sentMessage) {
+    if (mobility->getRoadId()[0] != ':')
+    {
+        traciVehicle->changeRoute(wsm->getDemoData(), 9999);
+    }
+    if (!sentMessage)
+    {
         sentMessage = true;
         // repeat the received traffic update once in 2 seconds plus some random delay
         wsm->setSenderAddress(myId);
@@ -31,21 +36,22 @@ void MyVeinsApp::onWSM(BaseFrame1609_4* frame)
 
 void MyVeinsApp::handleSelfMsg(cMessage* msg)
 {
-    if (TraCIDemo11pMessage* wsm = dynamic_cast<TraCIDemo11pMessage*>(msg)) {
+    if (TraCIDemo11pMessage* wsm = dynamic_cast<TraCIDemo11pMessage*>(msg))
+    {
         // send this message on the service channel until the counter is 3 or higher.
         // this code only runs when channel switching is enabled
         sendDown(wsm->dup());
         wsm->setSerial(wsm->getSerial() + 1);
         if (wsm->getSerial() >= 3) {
             // stop service advertisements
-            stopService();
             delete (wsm);
         }
         else {
             scheduleAt(simTime() + 1, wsm);
         }
     }
-    else {
+    else
+    {
         ECODEBaseApplLayer::handleSelfMsg(msg);
     }
 }
@@ -56,8 +62,10 @@ void MyVeinsApp::handlePositionUpdate(cObject* obj)
 
     std::cout << mobility->getId() << " se moveu!" << std::endl;
     // stopped for for at least 10s?
-    if (mobility->getSpeed() < 1) {
-        if (simTime() - lastDroveAt >= 10 && sentMessage == false) {
+    if (mobility->getSpeed() < 1)
+    {
+        if (simTime() - lastDroveAt >= 10 && sentMessage == false)
+        {
             sentMessage = true;
 
             TraCIDemo11pMessage* wsm = new TraCIDemo11pMessage();
@@ -66,18 +74,14 @@ void MyVeinsApp::handlePositionUpdate(cObject* obj)
             std::cout << "Criei: " << mobility->getId() << ": " << wsm->getDemoData() << std::endl;
 
             // host is standing still due to crash
-            if (dataOnSch) {
-                startService(Channel::sch2, 42, "Traffic Information Service");
-                // started service and server advertising, schedule message to self to send later
-                scheduleAt(computeAsynchronousSendingTime(1, ChannelType::service), wsm);
-            }
-            else {
-                // send right away on CCH, because channel switching is disabled
-                sendDown(wsm);
-            }
+            
+            // send right away on CCH, because channel switching is disabled
+            sendDown(wsm);
+            
         }
     }
-    else {
+    else
+    {
         lastDroveAt = simTime();
         sentMessage = false;
     }

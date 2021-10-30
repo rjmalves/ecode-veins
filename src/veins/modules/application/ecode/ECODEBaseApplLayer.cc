@@ -28,10 +28,6 @@ void ECODEBaseApplLayer::initialize(int stage)
 
         // read parameters
         headerLength = par("headerLength");
-        sendBeacons = par("sendBeacons").boolValue();
-        beaconLengthBits = par("beaconLengthBits");
-        beaconUserPriority = par("beaconUserPriority");
-        beaconInterval = par("beaconInterval");
 
         dataLengthBits = par("dataLengthBits");
         dataOnSch = par("dataOnSch").boolValue();
@@ -45,12 +41,9 @@ void ECODEBaseApplLayer::initialize(int stage)
         findHost()->subscribe(BaseMobility::mobilityStateChangedSignal, this);
         findHost()->subscribe(TraCIMobility::parkingStateChangedSignal, this);
 
-        sendBeaconEvt = new cMessage("beacon evt", SEND_BEACON_EVT);
         sendWSAEvt = new cMessage("wsa evt", SEND_WSA_EVT);
 
-        generatedBSMs = 0;
         generatedWSMs = 0;
-        receivedBSMs = 0;
         receivedWSMs = 0;
     }
     else if (stage == 1) {
@@ -63,24 +56,6 @@ void ECODEBaseApplLayer::initialize(int stage)
         if (dataOnSch == true && !mac->isChannelSwitchingActive()) {
             dataOnSch = false;
             EV_ERROR << "App wants to send data on SCH but MAC doesn't use any SCH. Sending all data on CCH" << std::endl;
-        }
-        simtime_t firstBeacon = simTime();
-
-        if (par("avoidBeaconSynchronization").boolValue() == true) {
-
-            simtime_t randomOffset = dblrand() * beaconInterval;
-            firstBeacon = simTime() + randomOffset;
-
-            if (mac->isChannelSwitchingActive() == true) {
-                if (beaconInterval.raw() % (mac->getSwitchingInterval().raw() * 2)) {
-                    EV_ERROR << "The beacon interval (" << beaconInterval << ") is smaller than or not a multiple of  one synchronization interval (" << 2 * mac->getSwitchingInterval() << "). This means that beacons are generated during SCH intervals" << std::endl;
-                }
-                firstBeacon = computeAsynchronousSendingTime(beaconInterval, ChannelType::control);
-            }
-
-            if (sendBeacons) {
-                scheduleAt(firstBeacon, sendBeaconEvt);
-            }
         }
     }
 }
@@ -131,23 +106,12 @@ void ECODEBaseApplLayer::populateWSM(BaseFrame1609_4* wsm, LAddress::L2Type rcvI
 {
     wsm->setRecipientAddress(rcvId);
     wsm->setBitLength(headerLength);
-
-    if (DemoSafetyMessage* bsm = dynamic_cast<DemoSafetyMessage*>(wsm)) {
-        bsm->setSenderPos(curPosition);
-        bsm->setSenderSpeed(curSpeed);
-        bsm->setPsid(-1);
-        bsm->setChannelNumber(static_cast<int>(Channel::cch));
-        bsm->addBitLength(beaconLengthBits);
-        wsm->setUserPriority(beaconUserPriority);
-    }
-    else {
-        if (dataOnSch)
-            wsm->setChannelNumber(static_cast<int>(Channel::sch1)); // will be rewritten at Mac1609_4 to actual Service Channel. This is just so no controlInfo is needed
-        else
-            wsm->setChannelNumber(static_cast<int>(Channel::cch));
-        wsm->addBitLength(dataLengthBits);
-        wsm->setUserPriority(dataUserPriority);
-    }
+    if (dataOnSch)
+        wsm->setChannelNumber(static_cast<int>(Channel::sch1)); // will be rewritten at Mac1609_4 to actual Service Channel. This is just so no controlInfo is needed
+    else
+        wsm->setChannelNumber(static_cast<int>(Channel::cch));
+    wsm->addBitLength(dataLengthBits);
+    wsm->setUserPriority(dataUserPriority);
 }
 
 void ECODEBaseApplLayer::receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj, cObject* details)
@@ -179,14 +143,8 @@ void ECODEBaseApplLayer::handleLowerMsg(cMessage* msg)
     BaseFrame1609_4* wsm = dynamic_cast<BaseFrame1609_4*>(msg);
     ASSERT(wsm);
 
-    if (DemoSafetyMessage* bsm = dynamic_cast<DemoSafetyMessage*>(wsm)) {
-        receivedBSMs++;
-        onBSM(bsm);
-    }
-    else {
-        receivedWSMs++;
-        onWSM(wsm);
-    }
+    receivedWSMs++;
+    onWSM(wsm);
 
     delete (msg);
 }
@@ -194,13 +152,6 @@ void ECODEBaseApplLayer::handleLowerMsg(cMessage* msg)
 void ECODEBaseApplLayer::handleSelfMsg(cMessage* msg)
 {
     switch (msg->getKind()) {
-    case SEND_BEACON_EVT: {
-        DemoSafetyMessage* bsm = new DemoSafetyMessage();
-        populateWSM(bsm);
-        sendDown(bsm);
-        scheduleAt(simTime() + beaconInterval, sendBeaconEvt);
-        break;
-    }
     case SEND_WSA_EVT: {
         DemoServiceAdvertisment* wsa = new DemoServiceAdvertisment();
         populateWSM(wsa);
@@ -219,14 +170,10 @@ void ECODEBaseApplLayer::finish()
 {
     recordScalar("generatedWSMs", generatedWSMs);
     recordScalar("receivedWSMs", receivedWSMs);
-
-    recordScalar("generatedBSMs", generatedBSMs);
-    recordScalar("receivedBSMs", receivedBSMs);
 }
 
 ECODEBaseApplLayer::~ECODEBaseApplLayer()
 {
-    cancelAndDelete(sendBeaconEvt);
     cancelAndDelete(sendWSAEvt);
     findHost()->unsubscribe(BaseMobility::mobilityStateChangedSignal, this);
 }
@@ -266,11 +213,7 @@ void ECODEBaseApplLayer::sendDelayedDown(cMessage* msg, simtime_t delay)
 
 void ECODEBaseApplLayer::checkAndTrackPacket(cMessage* msg)
 {
-    if (dynamic_cast<DemoSafetyMessage*>(msg)) {
-        EV_TRACE << "sending down a BSM" << std::endl;
-        generatedBSMs++;
-    }
-    else if (dynamic_cast<BaseFrame1609_4*>(msg)) {
+    if (dynamic_cast<BaseFrame1609_4*>(msg)) {
         EV_TRACE << "sending down a wsm" << std::endl;
         generatedWSMs++;
     }

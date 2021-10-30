@@ -33,7 +33,8 @@ using veins::TraCIMobilityAccess;
  * @see PhyLayer80211p
  * @see Decider80211p
  */
-class VEINS_API ECODEBaseApplLayer : public BaseApplLayer {
+class VEINS_API ECODEBaseApplLayer : public BaseApplLayer
+{
 
 public:
     ~ECODEBaseApplLayer() override;
@@ -42,8 +43,8 @@ public:
 
     void receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj, cObject* details) override;
 
-    enum DemoApplMessageKinds {
-        SEND_BEACON_EVT,
+    enum ECODEMessageKinds
+    {
         SEND_WSA_EVT
     };
 
@@ -59,9 +60,6 @@ protected:
 
     /** @brief this function is called upon receiving a BaseFrame1609_4 */
     virtual void onWSM(BaseFrame1609_4* wsm){};
-
-    /** @brief this function is called upon receiving a DemoSafetyMessage, also referred to as a beacon  */
-    virtual void onBSM(DemoSafetyMessage* bsm){};
 
     /** @brief this function is called every time the vehicle receives a position update signal */
     virtual void handlePositionUpdate(cObject* obj);
@@ -121,12 +119,6 @@ protected:
     /* support for parking currently only works with TraCI */
     bool isParked;
 
-    /* BSM (beacon) settings */
-    uint32_t beaconLengthBits;
-    uint32_t beaconUserPriority;
-    simtime_t beaconInterval;
-    bool sendBeacons;
-
     /* WSM (data) settings */
     uint32_t dataLengthBits;
     uint32_t dataUserPriority;
@@ -146,12 +138,9 @@ protected:
 
     /* stats */
     uint32_t generatedWSMs;
-    uint32_t generatedBSMs;
     uint32_t receivedWSMs;
-    uint32_t receivedBSMs;
 
     /* messages for periodic events such as beacon and WSA transmissions */
-    cMessage* sendBeaconEvt;
     cMessage* sendWSAEvt;
 };
 
