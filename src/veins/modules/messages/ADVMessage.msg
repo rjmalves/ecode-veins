@@ -12,10 +12,10 @@ class noncobject Coord;
 class LAddress::L2Type extends void;
 
 packet ADVMessage extends BaseFrame1609_4 {
-    string senderID;
+    int senderID;
     double senderSpeed;
     Coord senderPos;
     Coord senderDirection;
     string senderDestination;
-    double simTime;
+    simtime_t simTime;
 }

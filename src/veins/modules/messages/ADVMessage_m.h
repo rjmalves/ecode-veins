@@ -41,24 +41,24 @@ namespace veins {
  * <pre>
  * packet ADVMessage extends BaseFrame1609_4
  * {
- *     string senderID;
+ *     int senderID;
  *     double senderSpeed;
  *     Coord senderPos;
  *     Coord senderDirection;
  *     string senderDestination;
- *     double simTime;
+ *     simtime_t simTime;
  * }
  * </pre>
  */
 class VEINS_API ADVMessage : public ::veins::BaseFrame1609_4
 {
   protected:
-    ::omnetpp::opp_string senderID;
+    int senderID;
     double senderSpeed;
     Coord senderPos;
     Coord senderDirection;
     ::omnetpp::opp_string senderDestination;
-    double simTime;
+    ::omnetpp::simtime_t simTime;
 
   private:
     void copy(const ADVMessage& other);
@@ -77,8 +77,8 @@ class VEINS_API ADVMessage : public ::veins::BaseFrame1609_4
     virtual void parsimUnpack(omnetpp::cCommBuffer *b) override;
 
     // field getter/setter methods
-    virtual const char * getSenderID() const;
-    virtual void setSenderID(const char * senderID);
+    virtual int getSenderID() const;
+    virtual void setSenderID(int senderID);
     virtual double getSenderSpeed() const;
     virtual void setSenderSpeed(double senderSpeed);
     virtual Coord& getSenderPos();
@@ -89,8 +89,8 @@ class VEINS_API ADVMessage : public ::veins::BaseFrame1609_4
     virtual void setSenderDirection(const Coord& senderDirection);
     virtual const char * getSenderDestination() const;
     virtual void setSenderDestination(const char * senderDestination);
-    virtual double getSimTime() const;
-    virtual void setSimTime(double simTime);
+    virtual ::omnetpp::simtime_t getSimTime() const;
+    virtual void setSimTime(::omnetpp::simtime_t simTime);
 };
 
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const ADVMessage& obj) {obj.parsimPack(b);}

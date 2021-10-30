@@ -182,6 +182,7 @@ Register_Class(ADVMessage)
 
 ADVMessage::ADVMessage(const char *name, short kind) : ::veins::BaseFrame1609_4(name,kind)
 {
+    this->senderID = 0;
     this->senderSpeed = 0;
     this->simTime = 0;
 }
@@ -235,12 +236,12 @@ void ADVMessage::parsimUnpack(omnetpp::cCommBuffer *b)
     doParsimUnpacking(b,this->simTime);
 }
 
-const char * ADVMessage::getSenderID() const
+int ADVMessage::getSenderID() const
 {
-    return this->senderID.c_str();
+    return this->senderID;
 }
 
-void ADVMessage::setSenderID(const char * senderID)
+void ADVMessage::setSenderID(int senderID)
 {
     this->senderID = senderID;
 }
@@ -285,12 +286,12 @@ void ADVMessage::setSenderDestination(const char * senderDestination)
     this->senderDestination = senderDestination;
 }
 
-double ADVMessage::getSimTime() const
+::omnetpp::simtime_t ADVMessage::getSimTime() const
 {
     return this->simTime;
 }
 
-void ADVMessage::setSimTime(double simTime)
+void ADVMessage::setSimTime(::omnetpp::simtime_t simTime)
 {
     this->simTime = simTime;
 }
@@ -423,12 +424,12 @@ const char *ADVMessageDescriptor::getFieldTypeString(int field) const
         field -= basedesc->getFieldCount();
     }
     static const char *fieldTypeStrings[] = {
-        "string",
+        "int",
         "double",
         "Coord",
         "Coord",
         "string",
-        "double",
+        "simtime_t",
     };
     return (field>=0 && field<6) ? fieldTypeStrings[field] : nullptr;
 }
@@ -497,12 +498,12 @@ std::string ADVMessageDescriptor::getFieldValueAsString(void *object, int field,
     }
     ADVMessage *pp = (ADVMessage *)object; (void)pp;
     switch (field) {
-        case 0: return oppstring2string(pp->getSenderID());
+        case 0: return long2string(pp->getSenderID());
         case 1: return double2string(pp->getSenderSpeed());
         case 2: {std::stringstream out; out << pp->getSenderPos(); return out.str();}
         case 3: {std::stringstream out; out << pp->getSenderDirection(); return out.str();}
         case 4: return oppstring2string(pp->getSenderDestination());
-        case 5: return double2string(pp->getSimTime());
+        case 5: return simtime2string(pp->getSimTime());
         default: return "";
     }
 }
@@ -517,10 +518,10 @@ bool ADVMessageDescriptor::setFieldValueAsString(void *object, int field, int i,
     }
     ADVMessage *pp = (ADVMessage *)object; (void)pp;
     switch (field) {
-        case 0: pp->setSenderID((value)); return true;
+        case 0: pp->setSenderID(string2long(value)); return true;
         case 1: pp->setSenderSpeed(string2double(value)); return true;
         case 4: pp->setSenderDestination((value)); return true;
-        case 5: pp->setSimTime(string2double(value)); return true;
+        case 5: pp->setSimTime(string2simtime(value)); return true;
         default: return false;
     }
 }

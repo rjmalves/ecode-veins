@@ -1,6 +1,7 @@
 #pragma once
 
 #include "veins/modules/application/ecode/ECODEBaseApplLayer.h"
+#include "veins/modules/messages/ADVMessage_m.h"
 
 namespace veins {
 
@@ -28,8 +29,19 @@ protected:
     bool sentMessage;
     int currentSubscribedServiceId;
 
+    // Propriedades para a mensagem ADV
+    int id;
+    double speed;
+    Coord position;
+    Coord direction;
+    std::string destination;
+    simtime_t time;
+    simtime_t lastSentADV;
+
 protected:
     void onWSM(BaseFrame1609_4* wsm) override;
+
+    void populateADV(ADVMessage* adv);
 
     void handleSelfMsg(cMessage* msg) override;
     void handlePositionUpdate(cObject* obj) override;
