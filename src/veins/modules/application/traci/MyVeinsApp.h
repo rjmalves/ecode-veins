@@ -1,6 +1,7 @@
 #pragma once
 
 #include "veins/modules/application/ecode/ECODEBaseApplLayer.h"
+#include <map>
 #include "veins/modules/messages/ADVMessage_m.h"
 
 namespace veins {
@@ -37,6 +38,9 @@ protected:
     std::string destination;
     simtime_t time;
     simtime_t lastSentADV;
+
+    // Propriedades para a mensagem NR
+    std::map<int, ADVMessage*> NRtable;
 
 protected:
     void onWSM(BaseFrame1609_4* wsm) override;

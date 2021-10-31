@@ -21,8 +21,14 @@ void MyVeinsApp::initialize(int stage)
 
 void MyVeinsApp::onWSM(BaseFrame1609_4* frame)
 {
-    if (ADVMessage* adv = dynamic_cast<ADVMessage*>(frame)) {
-        std::cout << id << " Recebeu ADV de " << adv->getSenderID()  << " em " << simTime() << std::endl;
+    if (ADVMessage* adv = dynamic_cast<ADVMessage*>(frame))
+    {
+        NRtable[adv->getSenderID()] = adv;
+        std::cout << id << ": Tabela NR:" << std::endl;
+        for (auto const& par : NRtable)
+        {
+            std::cout << par.first << " -> " << par.second->getArrivalTime() << std::endl;
+        }
     }
 }
 
