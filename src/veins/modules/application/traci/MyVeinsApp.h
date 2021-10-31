@@ -1,8 +1,10 @@
 #pragma once
 
-#include "veins/modules/application/ecode/ECODEBaseApplLayer.h"
 #include <map>
+#include "veins/modules/application/ecode/ECODEBaseApplLayer.h"
+#include "veins/modules/application/ecode/NRTable.h"
 #include "veins/modules/messages/ADVMessage_m.h"
+#include "veins/modules/messages/NRMessage_m.h"
 
 namespace veins {
 
@@ -33,19 +35,21 @@ protected:
     // Propriedades para a mensagem ADV
     int id;
     double speed;
-    Coord position;
-    Coord direction;
+    std::string edge;
+    std::string lane;
+    double lanePosition;
     std::string destination;
     simtime_t time;
     simtime_t lastSentADV;
 
     // Propriedades para a mensagem NR
-    std::map<int, ADVMessage*> NRtable;
+    std::map<int, NRTableEntry*> nr;
 
 protected:
     void onWSM(BaseFrame1609_4* wsm) override;
 
     void populateADV(ADVMessage* adv);
+    void populateNR(NRMessage* nr);
 
     void handleSelfMsg(cMessage* msg) override;
     void handlePositionUpdate(cObject* obj) override;

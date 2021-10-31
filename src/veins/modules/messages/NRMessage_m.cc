@@ -1,5 +1,5 @@
 //
-// Generated file, do not edit! Created by nedtool 5.7 from veins/modules/messages/ADVMessage.msg.
+// Generated file, do not edit! Created by nedtool 5.7 from veins/modules/messages/NRMessage.msg.
 //
 
 // Disable warnings about unused variables, empty switch stmts, etc:
@@ -26,7 +26,7 @@
 
 #include <iostream>
 #include <sstream>
-#include "ADVMessage_m.h"
+#include "NRMessage_m.h"
 
 namespace omnetpp {
 
@@ -178,26 +178,31 @@ inline std::ostream& operator<<(std::ostream& out, const std::vector<T,A>& vec)
     return out;
 }
 
-Register_Class(ADVMessage)
+Register_Class(NRMessage)
 
-ADVMessage::ADVMessage(const char *name, short kind) : ::veins::BaseFrame1609_4(name,kind)
+NRMessage::NRMessage(const char *name, short kind) : ::veins::BaseFrame1609_4(name,kind)
 {
-    this->senderID = 0;
-    this->senderSpeed = 0;
-    this->senderLanePosition = 0;
-    this->time = 0;
+    this->numElements = 0;
+    for (unsigned int i=0; i<50; i++)
+        this->ids[i] = 0;
+    for (unsigned int i=0; i<50; i++)
+        this->speeds[i] = 0;
+    for (unsigned int i=0; i<50; i++)
+        this->lanePositions[i] = 0;
+    for (unsigned int i=0; i<50; i++)
+        this->times[i] = 0;
 }
 
-ADVMessage::ADVMessage(const ADVMessage& other) : ::veins::BaseFrame1609_4(other)
+NRMessage::NRMessage(const NRMessage& other) : ::veins::BaseFrame1609_4(other)
 {
     copy(other);
 }
 
-ADVMessage::~ADVMessage()
+NRMessage::~NRMessage()
 {
 }
 
-ADVMessage& ADVMessage::operator=(const ADVMessage& other)
+NRMessage& NRMessage::operator=(const NRMessage& other)
 {
     if (this==&other) return *this;
     ::veins::BaseFrame1609_4::operator=(other);
@@ -205,118 +210,187 @@ ADVMessage& ADVMessage::operator=(const ADVMessage& other)
     return *this;
 }
 
-void ADVMessage::copy(const ADVMessage& other)
+void NRMessage::copy(const NRMessage& other)
 {
-    this->senderID = other.senderID;
-    this->senderSpeed = other.senderSpeed;
-    this->senderEdge = other.senderEdge;
-    this->senderLane = other.senderLane;
-    this->senderLanePosition = other.senderLanePosition;
-    this->senderDestination = other.senderDestination;
-    this->time = other.time;
+    this->numElements = other.numElements;
+    for (unsigned int i=0; i<50; i++)
+        this->ids[i] = other.ids[i];
+    for (unsigned int i=0; i<50; i++)
+        this->speeds[i] = other.speeds[i];
+    for (unsigned int i=0; i<50; i++)
+        this->edges[i] = other.edges[i];
+    for (unsigned int i=0; i<50; i++)
+        this->lanes[i] = other.lanes[i];
+    for (unsigned int i=0; i<50; i++)
+        this->lanePositions[i] = other.lanePositions[i];
+    for (unsigned int i=0; i<50; i++)
+        this->destinations[i] = other.destinations[i];
+    for (unsigned int i=0; i<50; i++)
+        this->times[i] = other.times[i];
 }
 
-void ADVMessage::parsimPack(omnetpp::cCommBuffer *b) const
+void NRMessage::parsimPack(omnetpp::cCommBuffer *b) const
 {
     ::veins::BaseFrame1609_4::parsimPack(b);
-    doParsimPacking(b,this->senderID);
-    doParsimPacking(b,this->senderSpeed);
-    doParsimPacking(b,this->senderEdge);
-    doParsimPacking(b,this->senderLane);
-    doParsimPacking(b,this->senderLanePosition);
-    doParsimPacking(b,this->senderDestination);
-    doParsimPacking(b,this->time);
+    doParsimPacking(b,this->numElements);
+    doParsimArrayPacking(b,this->ids,50);
+    doParsimArrayPacking(b,this->speeds,50);
+    doParsimArrayPacking(b,this->edges,50);
+    doParsimArrayPacking(b,this->lanes,50);
+    doParsimArrayPacking(b,this->lanePositions,50);
+    doParsimArrayPacking(b,this->destinations,50);
+    doParsimArrayPacking(b,this->times,50);
 }
 
-void ADVMessage::parsimUnpack(omnetpp::cCommBuffer *b)
+void NRMessage::parsimUnpack(omnetpp::cCommBuffer *b)
 {
     ::veins::BaseFrame1609_4::parsimUnpack(b);
-    doParsimUnpacking(b,this->senderID);
-    doParsimUnpacking(b,this->senderSpeed);
-    doParsimUnpacking(b,this->senderEdge);
-    doParsimUnpacking(b,this->senderLane);
-    doParsimUnpacking(b,this->senderLanePosition);
-    doParsimUnpacking(b,this->senderDestination);
-    doParsimUnpacking(b,this->time);
+    doParsimUnpacking(b,this->numElements);
+    doParsimArrayUnpacking(b,this->ids,50);
+    doParsimArrayUnpacking(b,this->speeds,50);
+    doParsimArrayUnpacking(b,this->edges,50);
+    doParsimArrayUnpacking(b,this->lanes,50);
+    doParsimArrayUnpacking(b,this->lanePositions,50);
+    doParsimArrayUnpacking(b,this->destinations,50);
+    doParsimArrayUnpacking(b,this->times,50);
 }
 
-int ADVMessage::getSenderID() const
+int NRMessage::getNumElements() const
 {
-    return this->senderID;
+    return this->numElements;
 }
 
-void ADVMessage::setSenderID(int senderID)
+void NRMessage::setNumElements(int numElements)
 {
-    this->senderID = senderID;
+    this->numElements = numElements;
 }
 
-double ADVMessage::getSenderSpeed() const
+unsigned int NRMessage::getIdsArraySize() const
 {
-    return this->senderSpeed;
+    return 50;
 }
 
-void ADVMessage::setSenderSpeed(double senderSpeed)
+int NRMessage::getIds(unsigned int k) const
 {
-    this->senderSpeed = senderSpeed;
+    if (k>=50) throw omnetpp::cRuntimeError("Array of size 50 indexed by %lu", (unsigned long)k);
+    return this->ids[k];
 }
 
-const char * ADVMessage::getSenderEdge() const
+void NRMessage::setIds(unsigned int k, int ids)
 {
-    return this->senderEdge.c_str();
+    if (k>=50) throw omnetpp::cRuntimeError("Array of size 50 indexed by %lu", (unsigned long)k);
+    this->ids[k] = ids;
 }
 
-void ADVMessage::setSenderEdge(const char * senderEdge)
+unsigned int NRMessage::getSpeedsArraySize() const
 {
-    this->senderEdge = senderEdge;
+    return 50;
 }
 
-const char * ADVMessage::getSenderLane() const
+double NRMessage::getSpeeds(unsigned int k) const
 {
-    return this->senderLane.c_str();
+    if (k>=50) throw omnetpp::cRuntimeError("Array of size 50 indexed by %lu", (unsigned long)k);
+    return this->speeds[k];
 }
 
-void ADVMessage::setSenderLane(const char * senderLane)
+void NRMessage::setSpeeds(unsigned int k, double speeds)
 {
-    this->senderLane = senderLane;
+    if (k>=50) throw omnetpp::cRuntimeError("Array of size 50 indexed by %lu", (unsigned long)k);
+    this->speeds[k] = speeds;
 }
 
-double ADVMessage::getSenderLanePosition() const
+unsigned int NRMessage::getEdgesArraySize() const
 {
-    return this->senderLanePosition;
+    return 50;
 }
 
-void ADVMessage::setSenderLanePosition(double senderLanePosition)
+const char * NRMessage::getEdges(unsigned int k) const
 {
-    this->senderLanePosition = senderLanePosition;
+    if (k>=50) throw omnetpp::cRuntimeError("Array of size 50 indexed by %lu", (unsigned long)k);
+    return this->edges[k].c_str();
 }
 
-const char * ADVMessage::getSenderDestination() const
+void NRMessage::setEdges(unsigned int k, const char * edges)
 {
-    return this->senderDestination.c_str();
+    if (k>=50) throw omnetpp::cRuntimeError("Array of size 50 indexed by %lu", (unsigned long)k);
+    this->edges[k] = edges;
 }
 
-void ADVMessage::setSenderDestination(const char * senderDestination)
+unsigned int NRMessage::getLanesArraySize() const
 {
-    this->senderDestination = senderDestination;
+    return 50;
 }
 
-::omnetpp::simtime_t ADVMessage::getTime() const
+const char * NRMessage::getLanes(unsigned int k) const
 {
-    return this->time;
+    if (k>=50) throw omnetpp::cRuntimeError("Array of size 50 indexed by %lu", (unsigned long)k);
+    return this->lanes[k].c_str();
 }
 
-void ADVMessage::setTime(::omnetpp::simtime_t time)
+void NRMessage::setLanes(unsigned int k, const char * lanes)
 {
-    this->time = time;
+    if (k>=50) throw omnetpp::cRuntimeError("Array of size 50 indexed by %lu", (unsigned long)k);
+    this->lanes[k] = lanes;
 }
 
-class ADVMessageDescriptor : public omnetpp::cClassDescriptor
+unsigned int NRMessage::getLanePositionsArraySize() const
+{
+    return 50;
+}
+
+double NRMessage::getLanePositions(unsigned int k) const
+{
+    if (k>=50) throw omnetpp::cRuntimeError("Array of size 50 indexed by %lu", (unsigned long)k);
+    return this->lanePositions[k];
+}
+
+void NRMessage::setLanePositions(unsigned int k, double lanePositions)
+{
+    if (k>=50) throw omnetpp::cRuntimeError("Array of size 50 indexed by %lu", (unsigned long)k);
+    this->lanePositions[k] = lanePositions;
+}
+
+unsigned int NRMessage::getDestinationsArraySize() const
+{
+    return 50;
+}
+
+const char * NRMessage::getDestinations(unsigned int k) const
+{
+    if (k>=50) throw omnetpp::cRuntimeError("Array of size 50 indexed by %lu", (unsigned long)k);
+    return this->destinations[k].c_str();
+}
+
+void NRMessage::setDestinations(unsigned int k, const char * destinations)
+{
+    if (k>=50) throw omnetpp::cRuntimeError("Array of size 50 indexed by %lu", (unsigned long)k);
+    this->destinations[k] = destinations;
+}
+
+unsigned int NRMessage::getTimesArraySize() const
+{
+    return 50;
+}
+
+::omnetpp::simtime_t NRMessage::getTimes(unsigned int k) const
+{
+    if (k>=50) throw omnetpp::cRuntimeError("Array of size 50 indexed by %lu", (unsigned long)k);
+    return this->times[k];
+}
+
+void NRMessage::setTimes(unsigned int k, ::omnetpp::simtime_t times)
+{
+    if (k>=50) throw omnetpp::cRuntimeError("Array of size 50 indexed by %lu", (unsigned long)k);
+    this->times[k] = times;
+}
+
+class NRMessageDescriptor : public omnetpp::cClassDescriptor
 {
   private:
     mutable const char **propertynames;
   public:
-    ADVMessageDescriptor();
-    virtual ~ADVMessageDescriptor();
+    NRMessageDescriptor();
+    virtual ~NRMessageDescriptor();
 
     virtual bool doesSupport(omnetpp::cObject *obj) const override;
     virtual const char **getPropertyNames() const override;
@@ -338,24 +412,24 @@ class ADVMessageDescriptor : public omnetpp::cClassDescriptor
     virtual void *getFieldStructValuePointer(void *object, int field, int i) const override;
 };
 
-Register_ClassDescriptor(ADVMessageDescriptor)
+Register_ClassDescriptor(NRMessageDescriptor)
 
-ADVMessageDescriptor::ADVMessageDescriptor() : omnetpp::cClassDescriptor("veins::ADVMessage", "veins::BaseFrame1609_4")
+NRMessageDescriptor::NRMessageDescriptor() : omnetpp::cClassDescriptor("veins::NRMessage", "veins::BaseFrame1609_4")
 {
     propertynames = nullptr;
 }
 
-ADVMessageDescriptor::~ADVMessageDescriptor()
+NRMessageDescriptor::~NRMessageDescriptor()
 {
     delete[] propertynames;
 }
 
-bool ADVMessageDescriptor::doesSupport(omnetpp::cObject *obj) const
+bool NRMessageDescriptor::doesSupport(omnetpp::cObject *obj) const
 {
-    return dynamic_cast<ADVMessage *>(obj)!=nullptr;
+    return dynamic_cast<NRMessage *>(obj)!=nullptr;
 }
 
-const char **ADVMessageDescriptor::getPropertyNames() const
+const char **NRMessageDescriptor::getPropertyNames() const
 {
     if (!propertynames) {
         static const char *names[] = {  nullptr };
@@ -366,19 +440,19 @@ const char **ADVMessageDescriptor::getPropertyNames() const
     return propertynames;
 }
 
-const char *ADVMessageDescriptor::getProperty(const char *propertyname) const
+const char *NRMessageDescriptor::getProperty(const char *propertyname) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     return basedesc ? basedesc->getProperty(propertyname) : nullptr;
 }
 
-int ADVMessageDescriptor::getFieldCount() const
+int NRMessageDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 7+basedesc->getFieldCount() : 7;
+    return basedesc ? 8+basedesc->getFieldCount() : 8;
 }
 
-unsigned int ADVMessageDescriptor::getFieldTypeFlags(int field) const
+unsigned int NRMessageDescriptor::getFieldTypeFlags(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -388,17 +462,18 @@ unsigned int ADVMessageDescriptor::getFieldTypeFlags(int field) const
     }
     static unsigned int fieldTypeFlags[] = {
         FD_ISEDITABLE,
-        FD_ISEDITABLE,
-        FD_ISEDITABLE,
-        FD_ISEDITABLE,
-        FD_ISEDITABLE,
-        FD_ISEDITABLE,
-        FD_ISEDITABLE,
+        FD_ISARRAY | FD_ISEDITABLE,
+        FD_ISARRAY | FD_ISEDITABLE,
+        FD_ISARRAY | FD_ISEDITABLE,
+        FD_ISARRAY | FD_ISEDITABLE,
+        FD_ISARRAY | FD_ISEDITABLE,
+        FD_ISARRAY | FD_ISEDITABLE,
+        FD_ISARRAY | FD_ISEDITABLE,
     };
-    return (field>=0 && field<7) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<8) ? fieldTypeFlags[field] : 0;
 }
 
-const char *ADVMessageDescriptor::getFieldName(int field) const
+const char *NRMessageDescriptor::getFieldName(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -407,32 +482,34 @@ const char *ADVMessageDescriptor::getFieldName(int field) const
         field -= basedesc->getFieldCount();
     }
     static const char *fieldNames[] = {
-        "senderID",
-        "senderSpeed",
-        "senderEdge",
-        "senderLane",
-        "senderLanePosition",
-        "senderDestination",
-        "time",
+        "numElements",
+        "ids",
+        "speeds",
+        "edges",
+        "lanes",
+        "lanePositions",
+        "destinations",
+        "times",
     };
-    return (field>=0 && field<7) ? fieldNames[field] : nullptr;
+    return (field>=0 && field<8) ? fieldNames[field] : nullptr;
 }
 
-int ADVMessageDescriptor::findField(const char *fieldName) const
+int NRMessageDescriptor::findField(const char *fieldName) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     int base = basedesc ? basedesc->getFieldCount() : 0;
-    if (fieldName[0]=='s' && strcmp(fieldName, "senderID")==0) return base+0;
-    if (fieldName[0]=='s' && strcmp(fieldName, "senderSpeed")==0) return base+1;
-    if (fieldName[0]=='s' && strcmp(fieldName, "senderEdge")==0) return base+2;
-    if (fieldName[0]=='s' && strcmp(fieldName, "senderLane")==0) return base+3;
-    if (fieldName[0]=='s' && strcmp(fieldName, "senderLanePosition")==0) return base+4;
-    if (fieldName[0]=='s' && strcmp(fieldName, "senderDestination")==0) return base+5;
-    if (fieldName[0]=='t' && strcmp(fieldName, "time")==0) return base+6;
+    if (fieldName[0]=='n' && strcmp(fieldName, "numElements")==0) return base+0;
+    if (fieldName[0]=='i' && strcmp(fieldName, "ids")==0) return base+1;
+    if (fieldName[0]=='s' && strcmp(fieldName, "speeds")==0) return base+2;
+    if (fieldName[0]=='e' && strcmp(fieldName, "edges")==0) return base+3;
+    if (fieldName[0]=='l' && strcmp(fieldName, "lanes")==0) return base+4;
+    if (fieldName[0]=='l' && strcmp(fieldName, "lanePositions")==0) return base+5;
+    if (fieldName[0]=='d' && strcmp(fieldName, "destinations")==0) return base+6;
+    if (fieldName[0]=='t' && strcmp(fieldName, "times")==0) return base+7;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
-const char *ADVMessageDescriptor::getFieldTypeString(int field) const
+const char *NRMessageDescriptor::getFieldTypeString(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -442,6 +519,7 @@ const char *ADVMessageDescriptor::getFieldTypeString(int field) const
     }
     static const char *fieldTypeStrings[] = {
         "int",
+        "int",
         "double",
         "string",
         "string",
@@ -449,10 +527,10 @@ const char *ADVMessageDescriptor::getFieldTypeString(int field) const
         "string",
         "simtime_t",
     };
-    return (field>=0 && field<7) ? fieldTypeStrings[field] : nullptr;
+    return (field>=0 && field<8) ? fieldTypeStrings[field] : nullptr;
 }
 
-const char **ADVMessageDescriptor::getFieldPropertyNames(int field) const
+const char **NRMessageDescriptor::getFieldPropertyNames(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -465,7 +543,7 @@ const char **ADVMessageDescriptor::getFieldPropertyNames(int field) const
     }
 }
 
-const char *ADVMessageDescriptor::getFieldProperty(int field, const char *propertyname) const
+const char *NRMessageDescriptor::getFieldProperty(int field, const char *propertyname) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -478,7 +556,7 @@ const char *ADVMessageDescriptor::getFieldProperty(int field, const char *proper
     }
 }
 
-int ADVMessageDescriptor::getFieldArraySize(void *object, int field) const
+int NRMessageDescriptor::getFieldArraySize(void *object, int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -486,13 +564,20 @@ int ADVMessageDescriptor::getFieldArraySize(void *object, int field) const
             return basedesc->getFieldArraySize(object, field);
         field -= basedesc->getFieldCount();
     }
-    ADVMessage *pp = (ADVMessage *)object; (void)pp;
+    NRMessage *pp = (NRMessage *)object; (void)pp;
     switch (field) {
+        case 1: return 50;
+        case 2: return 50;
+        case 3: return 50;
+        case 4: return 50;
+        case 5: return 50;
+        case 6: return 50;
+        case 7: return 50;
         default: return 0;
     }
 }
 
-const char *ADVMessageDescriptor::getFieldDynamicTypeString(void *object, int field, int i) const
+const char *NRMessageDescriptor::getFieldDynamicTypeString(void *object, int field, int i) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -500,13 +585,13 @@ const char *ADVMessageDescriptor::getFieldDynamicTypeString(void *object, int fi
             return basedesc->getFieldDynamicTypeString(object,field,i);
         field -= basedesc->getFieldCount();
     }
-    ADVMessage *pp = (ADVMessage *)object; (void)pp;
+    NRMessage *pp = (NRMessage *)object; (void)pp;
     switch (field) {
         default: return nullptr;
     }
 }
 
-std::string ADVMessageDescriptor::getFieldValueAsString(void *object, int field, int i) const
+std::string NRMessageDescriptor::getFieldValueAsString(void *object, int field, int i) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -514,20 +599,21 @@ std::string ADVMessageDescriptor::getFieldValueAsString(void *object, int field,
             return basedesc->getFieldValueAsString(object,field,i);
         field -= basedesc->getFieldCount();
     }
-    ADVMessage *pp = (ADVMessage *)object; (void)pp;
+    NRMessage *pp = (NRMessage *)object; (void)pp;
     switch (field) {
-        case 0: return long2string(pp->getSenderID());
-        case 1: return double2string(pp->getSenderSpeed());
-        case 2: return oppstring2string(pp->getSenderEdge());
-        case 3: return oppstring2string(pp->getSenderLane());
-        case 4: return double2string(pp->getSenderLanePosition());
-        case 5: return oppstring2string(pp->getSenderDestination());
-        case 6: return simtime2string(pp->getTime());
+        case 0: return long2string(pp->getNumElements());
+        case 1: return long2string(pp->getIds(i));
+        case 2: return double2string(pp->getSpeeds(i));
+        case 3: return oppstring2string(pp->getEdges(i));
+        case 4: return oppstring2string(pp->getLanes(i));
+        case 5: return double2string(pp->getLanePositions(i));
+        case 6: return oppstring2string(pp->getDestinations(i));
+        case 7: return simtime2string(pp->getTimes(i));
         default: return "";
     }
 }
 
-bool ADVMessageDescriptor::setFieldValueAsString(void *object, int field, int i, const char *value) const
+bool NRMessageDescriptor::setFieldValueAsString(void *object, int field, int i, const char *value) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -535,20 +621,21 @@ bool ADVMessageDescriptor::setFieldValueAsString(void *object, int field, int i,
             return basedesc->setFieldValueAsString(object,field,i,value);
         field -= basedesc->getFieldCount();
     }
-    ADVMessage *pp = (ADVMessage *)object; (void)pp;
+    NRMessage *pp = (NRMessage *)object; (void)pp;
     switch (field) {
-        case 0: pp->setSenderID(string2long(value)); return true;
-        case 1: pp->setSenderSpeed(string2double(value)); return true;
-        case 2: pp->setSenderEdge((value)); return true;
-        case 3: pp->setSenderLane((value)); return true;
-        case 4: pp->setSenderLanePosition(string2double(value)); return true;
-        case 5: pp->setSenderDestination((value)); return true;
-        case 6: pp->setTime(string2simtime(value)); return true;
+        case 0: pp->setNumElements(string2long(value)); return true;
+        case 1: pp->setIds(i,string2long(value)); return true;
+        case 2: pp->setSpeeds(i,string2double(value)); return true;
+        case 3: pp->setEdges(i,(value)); return true;
+        case 4: pp->setLanes(i,(value)); return true;
+        case 5: pp->setLanePositions(i,string2double(value)); return true;
+        case 6: pp->setDestinations(i,(value)); return true;
+        case 7: pp->setTimes(i,string2simtime(value)); return true;
         default: return false;
     }
 }
 
-const char *ADVMessageDescriptor::getFieldStructName(int field) const
+const char *NRMessageDescriptor::getFieldStructName(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -561,7 +648,7 @@ const char *ADVMessageDescriptor::getFieldStructName(int field) const
     };
 }
 
-void *ADVMessageDescriptor::getFieldStructValuePointer(void *object, int field, int i) const
+void *NRMessageDescriptor::getFieldStructValuePointer(void *object, int field, int i) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -569,7 +656,7 @@ void *ADVMessageDescriptor::getFieldStructValuePointer(void *object, int field, 
             return basedesc->getFieldStructValuePointer(object, field, i);
         field -= basedesc->getFieldCount();
     }
-    ADVMessage *pp = (ADVMessage *)object; (void)pp;
+    NRMessage *pp = (NRMessage *)object; (void)pp;
     switch (field) {
         default: return nullptr;
     }

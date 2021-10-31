@@ -28,7 +28,6 @@
 #endif
 
 // cplusplus {{
-#include "veins/base/utils/Coord.h"
 #include "veins/modules/messages/BaseFrame1609_4_m.h"
 #include "veins/base/utils/SimpleAddress.h"
 // }}
@@ -37,16 +36,17 @@
 namespace veins {
 
 /**
- * Class generated from <tt>veins/modules/messages/ADVMessage.msg:14</tt> by nedtool.
+ * Class generated from <tt>veins/modules/messages/ADVMessage.msg:12</tt> by nedtool.
  * <pre>
  * packet ADVMessage extends BaseFrame1609_4
  * {
  *     int senderID;
  *     double senderSpeed;
- *     Coord senderPos;
- *     Coord senderDirection;
+ *     string senderEdge;
+ *     string senderLane;
+ *     double senderLanePosition;
  *     string senderDestination;
- *     simtime_t simTime;
+ *     simtime_t time;
  * }
  * </pre>
  */
@@ -55,10 +55,11 @@ class VEINS_API ADVMessage : public ::veins::BaseFrame1609_4
   protected:
     int senderID;
     double senderSpeed;
-    Coord senderPos;
-    Coord senderDirection;
+    ::omnetpp::opp_string senderEdge;
+    ::omnetpp::opp_string senderLane;
+    double senderLanePosition;
     ::omnetpp::opp_string senderDestination;
-    ::omnetpp::simtime_t simTime;
+    ::omnetpp::simtime_t time;
 
   private:
     void copy(const ADVMessage& other);
@@ -81,16 +82,16 @@ class VEINS_API ADVMessage : public ::veins::BaseFrame1609_4
     virtual void setSenderID(int senderID);
     virtual double getSenderSpeed() const;
     virtual void setSenderSpeed(double senderSpeed);
-    virtual Coord& getSenderPos();
-    virtual const Coord& getSenderPos() const {return const_cast<ADVMessage*>(this)->getSenderPos();}
-    virtual void setSenderPos(const Coord& senderPos);
-    virtual Coord& getSenderDirection();
-    virtual const Coord& getSenderDirection() const {return const_cast<ADVMessage*>(this)->getSenderDirection();}
-    virtual void setSenderDirection(const Coord& senderDirection);
+    virtual const char * getSenderEdge() const;
+    virtual void setSenderEdge(const char * senderEdge);
+    virtual const char * getSenderLane() const;
+    virtual void setSenderLane(const char * senderLane);
+    virtual double getSenderLanePosition() const;
+    virtual void setSenderLanePosition(double senderLanePosition);
     virtual const char * getSenderDestination() const;
     virtual void setSenderDestination(const char * senderDestination);
-    virtual ::omnetpp::simtime_t getSimTime() const;
-    virtual void setSimTime(::omnetpp::simtime_t simTime);
+    virtual ::omnetpp::simtime_t getTime() const;
+    virtual void setTime(::omnetpp::simtime_t time);
 };
 
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const ADVMessage& obj) {obj.parsimPack(b);}
