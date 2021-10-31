@@ -21,19 +21,9 @@ void MyVeinsApp::initialize(int stage)
 
 void MyVeinsApp::onWSM(BaseFrame1609_4* frame)
 {
-    // TraCIDemo11pMessage* wsm = check_and_cast<TraCIDemo11pMessage*>(frame);
-    // if (mobility->getRoadId()[0] != ':')
-    // {
-    //     traciVehicle->changeRoute(wsm->getDemoData(), 9999);
-    // }
-    // if (!sentMessage)
-    // {
-    //     sentMessage = true;
-    //     // repeat the received traffic update once in 2 seconds plus some random delay
-    //     wsm->setSenderAddress(myId);
-    //     wsm->setSerial(3);
-    //     scheduleAt(simTime() + 2 + uniform(0.01, 0.2), wsm->dup());
-    // }
+    if (ADVMessage* adv = dynamic_cast<ADVMessage*>(frame)) {
+        std::cout << id << " Recebeu ADV de " << adv->getSenderID()  << " em " << simTime() << std::endl;
+    }
 }
 
 void MyVeinsApp::handleSelfMsg(cMessage* msg)
@@ -79,17 +69,14 @@ void MyVeinsApp::handlePositionUpdate(cObject* obj)
     destination = traciVehicle->getPlannedRoadIds().back();
     time = simTime();
 
-    if (time - lastSentADV > 2.0)
+    if (time - lastSentADV > 1.0)
     {
         lastSentADV = time;
-        std::cout << mobility->getId() << " enviando ADV!" << std::endl;
+        std::cout << mobility->getId() << " enviando ADV em " << simTime() << std::endl;
         ADVMessage* adv = new ADVMessage();
         populateWSM(adv);
         populateADV(adv);
         sendDown(adv);
-        std::cout << destination << std::endl;
     }
-
-
 
 }
