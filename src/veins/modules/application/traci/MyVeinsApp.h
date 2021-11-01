@@ -44,6 +44,14 @@ protected:
 
     // Propriedades para a mensagem NR
     std::map<int, NRTableEntry*> nr;
+    simtime_t lastSentNR;
+
+    // Propriedades para a mensagem TMR
+    double edge_traffic_density;
+    double edge_traffic_speed;
+    double edge_travel_time;
+    double edge_max_allowed_speed;
+    simtime_t lastSentTMR;
 
 protected:
     void onWSM(BaseFrame1609_4* wsm) override;

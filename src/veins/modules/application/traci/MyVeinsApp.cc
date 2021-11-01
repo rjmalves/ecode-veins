@@ -1,5 +1,7 @@
 #include "veins/modules/application/traci/MyVeinsApp.h"
-
+#include <string>
+#include <vector>
+#include <algorithm>
 #include "veins/modules/application/traci/TraCIDemo11pMessage_m.h"
 
 using namespace veins;
@@ -17,6 +19,11 @@ void MyVeinsApp::initialize(int stage)
     }
     simtime_t time = 0;
     lastSentADV = 0;
+    lastSentNR = 0;
+    edge_traffic_density = 0;
+    edge_traffic_speed = 0;
+    edge_travel_time = 0;
+    edge_max_allowed_speed = 0;
 }
 
 void MyVeinsApp::onWSM(BaseFrame1609_4* frame)
@@ -31,17 +38,12 @@ void MyVeinsApp::onWSM(BaseFrame1609_4* frame)
         ent->lanePosition = adv->getSenderLanePosition();
         ent->destination = adv->getSenderDestination();
         ent->time = adv->getSendingTime();
-        nr[adv->getSenderID()] = ent;
-        std::cout << id << ": Tabela NR:" << std::endl;
-        for (auto const& par : nr)
+        if (this->edge.compare(ent->edge) == 0)
         {
-            std::cout << par.first << " -> " << par.second->time << std::endl;
+            nr[adv->getSenderID()] = ent;
+            std::cout << "Veiculo " << id << " atualizando NR em " << time << std::endl;
         }
 
-        NRMessage* nr = new NRMessage();
-        populateWSM(nr);
-        populateNR(nr);
-        sendDown(nr);
     }
     else if (NRMessage* nr = dynamic_cast<NRMessage*>(frame))
     {
@@ -49,9 +51,14 @@ void MyVeinsApp::onWSM(BaseFrame1609_4* frame)
         {
             int id = nr->getIds(i);
             simtime_t time = nr->getTimes(i);
-
-            if ((this->nr.find(id) != this->nr.end()) and
-                (this->time >= time))
+            if (this->nr.find(id) != this->nr.end())
+            {
+                if (this->nr[id]->time > time)
+                {
+                    continue;
+                }
+            }
+            if (this->edge.compare(nr->getEdges(i)) != 0)
             {
                 continue;
             }
@@ -70,24 +77,7 @@ void MyVeinsApp::onWSM(BaseFrame1609_4* frame)
 
 void MyVeinsApp::handleSelfMsg(cMessage* msg)
 {
-    if (TraCIDemo11pMessage* wsm = dynamic_cast<TraCIDemo11pMessage*>(msg))
-    {
-        // send this message on the service channel until the counter is 3 or higher.
-        // this code only runs when channel switching is enabled
-        sendDown(wsm->dup());
-        wsm->setSerial(wsm->getSerial() + 1);
-        if (wsm->getSerial() >= 3) {
-            // stop service advertisements
-            delete (wsm);
-        }
-        else {
-            scheduleAt(simTime() + 1, wsm);
-        }
-    }
-    else
-    {
-        ECODEBaseApplLayer::handleSelfMsg(msg);
-    }
+    ECODEBaseApplLayer::handleSelfMsg(msg);
 }
 
 void MyVeinsApp::populateADV(ADVMessage* adv)
@@ -124,6 +114,12 @@ void MyVeinsApp::handlePositionUpdate(cObject* obj)
     id = mobility->getId();
     time = simTime();
     speed = mobility->getSpeed();
+    // Se trocou de via, limpa a tabela NR
+    if (edge.compare(traciVehicle->getRoadId()) != 0)
+    {
+        std::cout << "Veiculo " << id << " mudou de via em " << time << std::endl;
+        this->nr.clear();
+    }
     edge = traciVehicle->getRoadId();
     lane = traciVehicle->getLaneId();
     lanePosition = traciVehicle->getLanePosition();
@@ -142,11 +138,37 @@ void MyVeinsApp::handlePositionUpdate(cObject* obj)
     if (time - lastSentADV > 1.0)
     {
         lastSentADV = time;
-        std::cout << mobility->getId() << " enviando ADV em " << simTime() << " Road = " << traciVehicle->getRoadId() << " Lane = " << traciVehicle->getLaneId() << std::endl;
+        std::cout << "Veiculo " << id << " enviando ADV em " << time << std::endl;
         ADVMessage* adv = new ADVMessage();
         populateWSM(adv);
         populateADV(adv);
         sendDown(adv);
     }
+    // Se é o veículo mais no início ou no final da via, faz
+    // o broadcast da mensagem NR
+    std::vector<double> positions;
+    for (auto const& par : nr)
+    {
+        positions.push_back(par.second->lanePosition);
+    }
+    if (time - lastSentNR > 1.0)
+    {
+        lastSentNR = time;
+        NRMessage* nr = new NRMessage();
+        populateWSM(nr);
+        populateNR(nr);
+        sendDown(nr);
+        std::cout << "Veiculo " << id << " enviando NR em " << time << std::endl;
+    }
 
+    // Se é o veículio mais no início ou no final da via, gera a mensagem
+    // de TMR e envia para as RSU
+    if ((this->lanePosition >= *max_element(positions.begin(),
+                                            positions.end())) and
+         time - lastSentTMR > 1.0)
+    {
+        
+    }
+         
+    
 }
