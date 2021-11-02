@@ -11,7 +11,8 @@ void MyRSUVeinsApp::initialize(int stage)
 
 void MyRSUVeinsApp::onWSM(BaseFrame1609_4* frame)
 {
-    if (ADVMessage* adv = dynamic_cast<ADVMessage*>(frame)) {
-        // std::cout << "RSU " << getId() << " Recebeu ADV de " << adv->getSenderID() << " em " << simTime() << std::endl;
+    if (TMRMessage* tmr = dynamic_cast<TMRMessage*>(frame)) {
+        std::cout << "RSU " << getId() << " Recebeu TMR de " << tmr->getSenderID() << " em " << simTime() << std::endl;
+        std::cout << "    Velocidade no segmento " << tmr->getSenderEdge() << " = " << tmr->getEdgeAverageSpeed() << std::endl;
     }
 }

@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <numeric>
 #include "veins/modules/application/traci/TraCIDemo11pMessage_m.h"
 
 using namespace veins;
@@ -20,10 +21,7 @@ void MyVeinsApp::initialize(int stage)
     simtime_t time = 0;
     lastSentADV = 0;
     lastSentNR = 0;
-    edge_traffic_density = 0;
-    edge_traffic_speed = 0;
-    edge_travel_time = 0;
-    edge_max_allowed_speed = 0;
+    lastSentTMR = 0;
 }
 
 void MyVeinsApp::onWSM(BaseFrame1609_4* frame)
@@ -107,6 +105,45 @@ void MyVeinsApp::populateNR(NRMessage* nr)
     }
 }
 
+void MyVeinsApp::populateTMR(TMRMessage* tmr)
+{
+    NRTable table = NRTable(this->nr);
+    double length = traci->lane(lane).getLength();
+    double edge_max_allowed_speed = traci->lane(lane).getMaxSpeed();
+    double edge_density = table.entries.size() / length;
+    double edge_average_speed;
+    double edge_travel_time;
+    std::vector<double> speeds;
+    for (auto const& entrada : table.entries)
+    {
+        speeds.push_back(entrada->speed);
+    }
+    if (speeds.size() > 0)
+    {
+        edge_average_speed = std::accumulate(speeds.begin(),
+                                             speeds.end(),
+                                             0.0) / speeds.size();
+    }
+    else
+    {
+        edge_average_speed = edge_max_allowed_speed;
+    }
+    if (edge_average_speed == 0)
+    {
+        edge_travel_time = length;
+    }
+    else
+    {
+        edge_travel_time = length / edge_average_speed;
+    }
+    tmr->setSenderID(id);
+    tmr->setSenderEdge(edge.c_str());
+    tmr->setEdgeAverageSpeed(edge_average_speed);
+    tmr->setEdgeDensity(edge_density);
+    tmr->setEdgeTravelTime(edge_travel_time);
+    tmr->setTime(time);
+}
+
 void MyVeinsApp::handlePositionUpdate(cObject* obj)
 {
     ECODEBaseApplLayer::handlePositionUpdate(obj);
@@ -146,11 +183,6 @@ void MyVeinsApp::handlePositionUpdate(cObject* obj)
     }
     // Se é o veículo mais no início ou no final da via, faz
     // o broadcast da mensagem NR
-    std::vector<double> positions;
-    for (auto const& par : nr)
-    {
-        positions.push_back(par.second->lanePosition);
-    }
     if (time - lastSentNR > 1.0)
     {
         lastSentNR = time;
@@ -163,12 +195,22 @@ void MyVeinsApp::handlePositionUpdate(cObject* obj)
 
     // Se é o veículio mais no início ou no final da via, gera a mensagem
     // de TMR e envia para as RSU
-    if ((this->lanePosition >= *max_element(positions.begin(),
-                                            positions.end())) and
-         time - lastSentTMR > 1.0)
+    std::vector<double> positions;
+    for (auto const& par : nr)
     {
-        
+        positions.push_back(par.second->lanePosition);
     }
-         
-    
+    if (((this->lanePosition >= *max_element(positions.begin(),
+                                             positions.end())) 
+        or (this->lanePosition <= *min_element(positions.begin(),
+                                               positions.end())))
+        and (time - lastSentTMR > 1.0))
+    {
+        lastSentTMR = time;
+        TMRMessage* tmr = new TMRMessage();
+        populateWSM(tmr);
+        populateTMR(tmr);
+        sendDown(tmr);
+    }
+
 }

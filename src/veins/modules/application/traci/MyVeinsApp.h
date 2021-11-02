@@ -5,6 +5,7 @@
 #include "veins/modules/application/ecode/NRTable.h"
 #include "veins/modules/messages/ADVMessage_m.h"
 #include "veins/modules/messages/NRMessage_m.h"
+#include "veins/modules/messages/TMRMessage_m.h"
 
 namespace veins {
 
@@ -47,10 +48,6 @@ protected:
     simtime_t lastSentNR;
 
     // Propriedades para a mensagem TMR
-    double edge_traffic_density;
-    double edge_traffic_speed;
-    double edge_travel_time;
-    double edge_max_allowed_speed;
     simtime_t lastSentTMR;
 
 protected:
@@ -58,6 +55,7 @@ protected:
 
     void populateADV(ADVMessage* adv);
     void populateNR(NRMessage* nr);
+    void populateTMR(TMRMessage* tmr);
 
     void handleSelfMsg(cMessage* msg) override;
     void handlePositionUpdate(cObject* obj) override;

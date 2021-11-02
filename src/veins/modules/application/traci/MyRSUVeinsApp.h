@@ -1,7 +1,7 @@
 #pragma once
 
 #include "veins/modules/application/ecode/ECODEBaseApplLayer.h"
-#include "veins/modules/messages/ADVMessage_m.h"
+#include "veins/modules/messages/TMRMessage_m.h"
 
 namespace veins {
 

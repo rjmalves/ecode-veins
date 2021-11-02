@@ -112,6 +112,7 @@ OBJS = \
     $O/veins/modules/messages/AirFrame11p_m.o \
     $O/veins/modules/messages/ADVMessage_m.o \
     $O/veins/modules/messages/NRMessage_m.o \
+    $O/veins/modules/messages/TMRMessage_m.o \
     $O/veins/modules/messages/BaseFrame1609_4_m.o \
     $O/veins/modules/messages/DemoSafetyMessage_m.o \
     $O/veins/modules/messages/DemoServiceAdvertisement_m.o \
@@ -129,6 +130,7 @@ MSGFILES = \
     veins/modules/messages/AckTimeOutMessage.msg \
     veins/modules/messages/ADVMessage.msg \
     veins/modules/messages/NRMessage.msg \
+    veins/modules/messages/TMRMessage.msg \
     veins/modules/messages/AirFrame11p.msg \
     veins/modules/messages/BaseFrame1609_4.msg \
     veins/modules/messages/DemoSafetyMessage.msg \
