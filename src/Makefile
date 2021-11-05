@@ -65,6 +65,7 @@ OBJS = \
     $O/veins/modules/analogueModel/VehicleObstacleShadowing.o \
     $O/veins/modules/application/ecode/ECODEBaseApplLayer.o \
     $O/veins/modules/application/ecode/NRTable.o \
+    $O/veins/modules/application/ecode/TSTable.o \
     $O/veins/modules/application/ieee80211p/DemoBaseApplLayer.o \
     $O/veins/modules/application/traci/MyVeinsApp.o \
     $O/veins/modules/application/traci/MyRSUVeinsApp.o \

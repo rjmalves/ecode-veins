@@ -12,7 +12,25 @@ void MyRSUVeinsApp::initialize(int stage)
 void MyRSUVeinsApp::onWSM(BaseFrame1609_4* frame)
 {
     if (TMRMessage* tmr = dynamic_cast<TMRMessage*>(frame)) {
-        std::cout << "RSU " << getId() << " Recebeu TMR de " << tmr->getSenderID() << " em " << simTime() << std::endl;
-        std::cout << "    Velocidade no segmento " << tmr->getSenderEdge() << " = " << tmr->getEdgeAverageSpeed() << std::endl;
+        TSTableEntry * ent = new TSTableEntry();
+        ent->senderVehicleID = tmr->getSenderID();
+        ent->time = tmr->getSendingTime();
+        ent->edge = tmr->getSenderEdge();
+        if (this->ts.find(ent->edge) != this->ts.end())
+        {
+            if (this->ts[ent->edge]->time > ent->time)
+            {
+                return;
+            }
+        }
+        ent->edgeAverageSpeed = tmr->getEdgeAverageSpeed();
+        ent->edgeDensity = tmr->getEdgeDensity();
+        ent->edgeTravelTime = tmr->getEdgeTravelTime();
+        ts[ent->edge] = ent;
+        std::cout << "RSU " << getId() << std::endl;
+        for (auto const& e : ts)
+        {
+            std::cout << "Estado estimado da aresta " << e.first << " " << e.second->edgeAverageSpeed << std::endl;
+        }
     }
 }

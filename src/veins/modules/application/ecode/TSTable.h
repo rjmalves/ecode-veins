@@ -4,26 +4,25 @@
 namespace veins {
 
 
-class VEINS_API NRTableEntry
+class VEINS_API TSTableEntry
 {
 public:
-    int id;
-    double speed;
     std::string edge;
-    std::string lane;
-    double lanePosition;
-    std::string destination;
+    int senderVehicleID;
+    double edgeAverageSpeed;
+    double edgeDensity;
+    double edgeTravelTime;
     simtime_t time;
 };
 
 
-class VEINS_API NRTable
+class VEINS_API TSTable
 {
 public:
     int num_elements;
-    std::vector<NRTableEntry*> entries;
+    std::vector<TSTableEntry*> entries;
 
-    NRTable(std::map<int, NRTableEntry*> table)
+    TSTable(std::map<int, TSTableEntry*> table)
     {
         this->num_elements = table.size();
         for (auto const& par : table)
